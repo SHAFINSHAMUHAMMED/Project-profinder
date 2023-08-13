@@ -5,12 +5,13 @@ const professionalSchema = new mongoose.Schema(
         name:{
             type:String,
             required:true,
+            uppercase: true,
         },
-        category:[{
-            // type:mongoose.Schema.Types.ObjectId,
-            // ref:'category'
-            type:String,
-        }],
+        category:{
+            type:mongoose.Schema.Types.ObjectId,
+            ref:'category',
+            type: String
+        },
         phone:{
             type:Number,
             unique:true
@@ -21,7 +22,9 @@ const professionalSchema = new mongoose.Schema(
             unique:true
         },
         location:{
-            type:String,
+            type:mongoose.Schema.Types.ObjectId,
+            ref:'location',
+            type:String
         },
         charge:{
             partime:{
@@ -49,7 +52,13 @@ const professionalSchema = new mongoose.Schema(
         status: {
             type: String,
             default:'Active'
-        }
+        },
+        orders: [
+            {
+              type: mongoose.Schema.Types.ObjectId,
+              ref: "orders",
+            },
+          ],
 
     },
     )

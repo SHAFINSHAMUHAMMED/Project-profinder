@@ -1,9 +1,10 @@
-import { Fragment, useState } from "react";
+import { Fragment, useState,useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { Navigate, useNavigate } from "react-router-dom";
+import { Navigate, useNavigate,Link } from "react-router-dom";
 import { UserLogout } from "../../../Redux/userState";
 import { Disclosure, Menu, Transition } from "@headlessui/react";
 import { Bars3Icon, BellIcon, XMarkIcon } from "@heroicons/react/24/outline";
+import userAxios from '../../../Axios/userAxios'
 
 const navigation = [
   { name: "Home", href: "#", current: true },
@@ -18,8 +19,13 @@ function classNames(...classNamees) {
 export default function Example() {
   const navigate = useNavigate();
   const [activeIndex, setActiveIndex] = useState(0);
+  const [userData, setuserData] = useState()
+
   const dispatch = useDispatch();
   const username = useSelector((state) => state.user.UserName);
+  const userId = useSelector((state) => state.user.Id);
+  const token = useSelector((state) => state.user.Token);
+
   const logout = () => {
     if(username){
       dispatch(UserLogout());
@@ -37,6 +43,19 @@ export default function Example() {
     setActiveIndex(index);
     navigate(href);
   };
+if(userId){
+  useEffect(() => {
+    userAxios.get(`/userDetails?userId=${userId}`,{
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+     }).then((res)=>{
+      const data = res.data.data
+      setuserData(data)
+     })
+    }, [])
+}
+  
   return (
     <Disclosure as="nav" className="bg-gray-100">
       {({ open }) => (
@@ -109,11 +128,19 @@ export default function Example() {
                   <div>
                     <Menu.Button className="flex rounded-full bg-gray-800 text-sm focus:outline-none focus:ring-2 focus:ring-white focus:ring-offset-2 focus:ring-offset-gray-800">
                       <span className="sr-only">Open user menu</span>
-                      <img
-                        className="sm:h-9 w-9 rounded-full "
-                        src="/loginpage/man.png"
-                        alt=""
-                      />
+                      {userData && userData.image ? (
+  <img
+    src={userData.image}
+    className=" h-6 w-6 sm:h-9 sm:w-9 rounded-full "
+    alt="User Profile"
+  />
+) : (
+  <img
+    src="/icons/man.png"
+    className="sm:h-9 w-9 rounded-full "
+    alt="Default Profile"
+  />
+)}
                     </Menu.Button>
                   </div>
                   <Transition
@@ -128,15 +155,15 @@ export default function Example() {
                     <Menu.Items className="absolute right-0 z-10 mt-2 w-48 origin-top-right rounded-md bg-white py-1 shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none">
                       <Menu.Item>
                         {({ active }) => (
-                          <a
-                            href=""
+                          <Link
+                          to={'/profile'}
                             className={classNames(
                               active ? "bg-gray-100" : "",
                               "block px-4 py-2 text-sm text-gray-700"
                             )}
                           >
                             Your Profile
-                          </a>
+                          </Link>
                         )}
                       </Menu.Item>
                       <Menu.Item>
@@ -179,7 +206,7 @@ export default function Example() {
             </button> */}
                 {username ? (
                   <div>
-                    <h3 className="text-gray-70000 ms-3 hidden sm:block text-xs sm:text-base md:text-base">
+                    <h3 className="text-gray-70000 ms-3  sm:block text-xs sm:text-base md:text-base">
                       {username}
                     </h3>
                   </div>
@@ -207,21 +234,32 @@ export default function Example() {
           {/* Mobile menu content (hidden on large screens) */}
           <Disclosure.Panel className="md:hidden">
             <div className="flex flex-col space-y-1">
-              {navigation.map((item) => (
-                <a
-                  key={item.name}
-                  href={item.href}
-                  className={classNames(
-                    item.current
-                      ? "bg-gray-900 text-white"
-                      : "text-gray-300 hover:bg-gray-700 hover:text-white",
-                    "block rounded-md px-3 py-2 text-base font-medium"
-                  )}
-                  aria-current={item.current ? "page" : undefined}
-                >
-                  {item.name}
-                </a>
-              ))}
+            {updatedNavigation.map((item, index) => (
+                    <a
+                      key={item.name}
+                      href={item.href}
+                      onClick={(e) => {
+                        e.preventDefault();
+                        handleClick(index, item.href);
+                        if (item.name === "Home") {
+                          navigate("/");
+                        } else if (item.name === "Services") {
+                          navigate("/Services");
+                        } else if (item.name === "Contact") {
+                            ("/"); //no contact page now
+                        }
+                      }}
+                      className={classNames(
+                        item.current
+                          ? "bg-white-600 text-blue-600"
+                          : "text-blue-600 hover:bg-gray-700 hover:text-red-700",
+                        "rounded-md px-5 py-3 text-sm font-medium"
+                      )}
+                      aria-current={item.current ? "page" : undefined}
+                    >
+                      {item.name}
+                    </a>
+                  ))}
             </div>
           </Disclosure.Panel>
         </>

@@ -16,7 +16,7 @@ app.use(cookieParser());
 
 // Configure specific origins, methods, and headers
 const corsOptions = {
-    origin: ['http://localhost:5173','http://127.0.0.1:5173'],
+    origin: [process.env.UserUrl,'http://127.0.0.1:5173'],
     methods: ['GET', 'POST', 'PUT', 'DELETE' , 'PATCH'],
     allowedHeaders: ['Content-Type', 'Authorization'],
     

@@ -2,6 +2,8 @@ import React, { useState, useRef } from "react";
 import userAxios from "../../../Axios/userAxios";
 import { useNavigate, Link } from "react-router-dom";
 import { toast, Toaster } from "react-hot-toast";
+import { CgSpinner } from "react-icons/cg";
+
 
 function UserRegister() {
   const Nameref = useRef();
@@ -13,8 +15,9 @@ function UserRegister() {
   const [error, setError] = useState("");
   const setErrMsg = (err) => toast.error(err, { position: "bottom-center" });
   const setSucMsg = (ok) => toast.success(ok, { position: "bottom-center" });
+  const [loading, setLoading] = useState(false);
 
-  const signUpForm = (event) => {
+  const signUpForm = async (event) => {
     event.preventDefault();
     const name = Nameref.current.value;
     const email = Emailref.current.value;
@@ -47,17 +50,28 @@ function UserRegister() {
       setErrMsg("Password must be at least 6 characters long.");
       return;
     }
-
-    userAxios
-      .post("/register", { name, email, phone, password })
-      .then((res) => {
-        if (res.data.status) {
-          navigate("/login", { state: { successMessage: res.data.message } });
-          setSucMsg(res.data.message);
-        } else {
-          setErrMsg(res.data.message);
-        }
+    
+    try {
+      setLoading(true);
+      const response = await userAxios.post("/register", {
+        name,
+        email,
+        phone,
+        password,
       });
+  
+      if (response.data.status) {
+        setSucMsg(response.data.message);
+        navigate("/login", { state: { successMessage: response.data.message } });
+      } else {
+        setErrMsg(response.data.message);
+      }
+    } catch (error) {
+      console.error("Error registering:", error);
+      setErrMsg("An error occurred while registering.");
+    }
+  
+    setLoading(false);
   };
 
   return (
@@ -130,7 +144,7 @@ function UserRegister() {
                 type="text"
                 name="phone"
                 id=""
-                placeholder="Your Phone umber"
+                placeholder="Your Phone Number"
               />
             </div>
             <div className="flex items-center border-2 py-2 px-3 rounded-2xl mb-4">
@@ -156,12 +170,17 @@ function UserRegister() {
               />
             </div>
             <button
-              type="submit"
-              name="Signup"
-              className="block w-full bg-indigo-600 mt-4 py-2 rounded-2xl text-white font-semibold mb-2"
-            >
-              Register
-            </button>
+            type="submit"
+            name="Signup"
+            className=" w-full bg-indigo-600 mt-4 py-2 rounded-2xl text-white font-semibold mb-2 flex justify-center"
+            disabled={loading} // Disable the button while loading
+          >
+            {loading ? (
+              <CgSpinner size={20} className="animate-spin flex justify-center" /> // Show spinner if loading
+            ) : (
+              "Register"
+            )}
+          </button>
             <Link
               to={"/login"}
               className="text-sm ml-2 hover:text-blue-500 cursor-pointer"

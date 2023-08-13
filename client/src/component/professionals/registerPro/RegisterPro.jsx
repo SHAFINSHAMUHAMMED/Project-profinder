@@ -1,4 +1,4 @@
-import React, { useState,useEffect, useRef } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import professionalsAxios from "../../../Axios/professionalsAxios";
 import { useNavigate, Link } from "react-router-dom";
 import { toast, Toaster } from "react-hot-toast";
@@ -15,36 +15,62 @@ function RegisterPro() {
 
   const navigate = useNavigate();
   const [error, setError] = useState("");
+  const [Cat, setCat] = useState([]);
+  const [searchQuery, setSearchQuery] = useState("");
+  const [filteredCategories, setFilteredCategories] = useState([]);
+  const [Category, setCategory] = useState('')
+  const [CatId, setCatId] = useState('')
+
+
   const setErrMsg = (err) => toast.error(err, { position: "bottom-center" });
   const setSucMsg = (ok) => toast.success(ok, { position: "bottom-center" });
 
+  const fetchData = async () => {
+    try {
+      const res = await professionalsAxios.get("/listCat");
+      if (res.data.status) {
+        setCat(res.data.category);
+      } else {
+        navigate("/admin/login");
+      }
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
   useEffect(() => {
-    professionalsAxios.get("/listCat")
-      .then((res) => {
-        if (res.data.status) {
-          setdetails(res.data.category);
-        //   console.log(details[0]);
-        }else{
-            navigate('/admin/login')
-        }
-      })
-      .catch((error) => {
-        console.log(error);
-      });
+    fetchData();
   }, []);
-  
+
+  const handleSearchChange = (event) => {
+    const query = event.target.value;
+    setSearchQuery(query);
+    const filtered = Cat.filter((category) =>
+      category.name.toLowerCase().includes(query.toLowerCase())
+    );
+    setFilteredCategories(filtered);
+  };
+  const handleCategorySelection = (categoryName) => {
+    setCategory(categoryName)
+    setSearchQuery(categoryName);
+    setFilteredCategories('') // Clear the search query after selecting a category
+  };
+
+  const sendId = (id)=>{
+    setCatId(id)
+  }
 
   const signUpForm = (event) => {
     event.preventDefault();
     const name = Nameref.current.value;
     const email = Emailref.current.value;
     const phone = Phoneref.current.value;
-    const category = Categoryref.current.value;
+    const category = CatId
     const location = Locationref.current.value;
     const fullTime = FullTimeref.current.value;
     const partTime = PartTimeref.current.value;
     const password = Passwordref.current.value;
-
+    console.log(category,searchQuery,123);
     // Validation
     if (!name || name.trim().length < 4) {
       setErrMsg("Enter Valid Name.");
@@ -67,7 +93,7 @@ function RegisterPro() {
       return;
     }
 
-    if (!category || category.trim().length < 4) {
+    if (Category.toLocaleLowerCase()!== searchQuery.toLocaleLowerCase()) {
       setErrMsg("Please Choose a valid Category");
       return;
     }
@@ -185,11 +211,12 @@ function RegisterPro() {
                 type="text"
                 name="phone"
                 id=""
-                placeholder="Your Phone umber"
+                placeholder="Your Phone Number"
               />
             </div>
-            {/* ///////////////// */}
-            <div className="flex items-center border-2 py-2 px-3 rounded-2xl mb-4">
+
+            {/* Display filtered categories as a list */}
+            <div className="flex items-center border-2 py-2 px-3 outline-none rounded-2xl mb-4">
               <svg
                 aria-hidden="true"
                 focusable="false"
@@ -204,13 +231,27 @@ function RegisterPro() {
               </svg>
               <input
                 className="pl-2 outline-none border-none w-80"
-                ref={Categoryref}
-                type="text"
-                name="category"
-                id=""
-                placeholder="I am pro In"
+                type="search"
+                value={searchQuery}
+                onChange={handleSearchChange}
+                placeholder="Search category..."
               />
             </div>
+            {filteredCategories.length > 0 ? (
+              <ul className="border border-gray-300 rounded-md overflow-y-auto max-h-36">
+                {filteredCategories.map((category) => (
+                  <li
+                    key={category._id}
+                    className="px-4 py-2 cursor-pointer hover:bg-gray-100"
+                    onClick={() => {handleCategorySelection(category.name), sendId(category._id)}}
+                  >
+                    {category.name}
+                  </li>
+                ))}
+              </ul>
+            ) : (
+              ''
+            )}
 
             <div className="flex items-center border-2 py-2 px-3 rounded-2xl mb-4">
               <svg
@@ -234,7 +275,6 @@ function RegisterPro() {
                 placeholder="Location"
               />
             </div>
-
             <div className="flex items-center border-2 py-2 px-3 rounded-2xl mb-4">
               <svg
                 aria-hidden="true"
@@ -323,14 +363,11 @@ function RegisterPro() {
           style={{ backgroundImage: "url('/register/background.png')" }}
           className={`relative overflow-hidden md:flex w-2/3 bg-no-repeat bg-center bg-contain justify-around items-center`}
         >
-          {/* Text inside  */}
-          {/* <div className="absolute -bottom-32 -left-40 w-80 h-80 border-4 rounded-full border-opacity-30 border-t-8"></div>
-		<div className="absolute -bottom-40 -left-20 w-80 h-80 border-4 rounded-full border-opacity-30 border-t-8"></div>
-		<div className="absolute -top-40 -right-0 w-80 h-80 border-4 rounded-full border-opacity-30 border-t-8"></div>
-		<div className="absolute -top-20 -right-20 w-80 h-80 border-4 rounded-full border-opacity-30 border-t-8"></div> */}
+          {/* Text inside */}
         </div>
       </div>
     </div>
   );
 }
+
 export default RegisterPro;

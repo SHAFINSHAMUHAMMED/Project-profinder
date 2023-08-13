@@ -1,5 +1,5 @@
 import express from 'express'
-import {RegisterPost,verifyMails,LoginPost,findByPhone,googleLogin,} from '../controller/professionalsControllers.js'
+import {RegisterPost,verifyMails,LoginPost,findByPhone,googleLogin,findCat} from '../controller/professionalsControllers.js'
 import { verifyToken } from '../middleware/auth.js';
 
 

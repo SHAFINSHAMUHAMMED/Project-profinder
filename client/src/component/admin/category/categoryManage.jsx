@@ -1,9 +1,8 @@
 import React, { useEffect, useRef, useState } from "react";
-import  AdminAxios from "../../../Axios/adminAxios";
+import AdminAxios from "../../../Axios/adminAxios";
 import { useDispatch, useSelector } from "react-redux";
 import { Navigate, useNavigate } from "react-router-dom";
 import { Toaster, toast } from "react-hot-toast";
-
 
 function categoryManage() {
   const typeRef = useRef();
@@ -14,26 +13,26 @@ function categoryManage() {
   const [edit, setEdit] = useState("");
   const [oldData, setOldData] = useState("");
   const [count, SetCount] = useState(0);
-  const [Value, setValue] = useState()
+  const [Value, setValue] = useState();
   const [SearchInput, setSearchInput] = useState("");
 
   const token = useSelector((store) => store.admin.Token);
   const navigate = useNavigate();
 
-  let change = false
+  let change = false;
 
   useEffect(() => {
-    AdminAxios.get("/listTypes",{
-        headers: {
-            Authorization: `Bearer ${token}`,
-         },
+    AdminAxios.get("/listTypes", {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
     })
       .then((res) => {
         if (res.data.status) {
           setdetails(res.data.category);
-        //   console.log(details[0]);
-        }else{
-            navigate('/admin/login')
+          //   console.log(details[0]);
+        } else {
+          navigate("/admin/login");
         }
       })
       .catch((error) => {
@@ -42,8 +41,8 @@ function categoryManage() {
   }, [type, deleted, count]);
 
   const generateError = (err) =>
-  toast.error(err, { position: "bottom-center" });
-
+    toast.error(err, { position: "bottom-center" });
+  const setSucMsg = (ok) => toast.success(ok, { position: "bottom-center" });
 
   const addTypes = async (e) => {
     e.preventDefault();
@@ -52,16 +51,20 @@ function categoryManage() {
       return generateError("fill all the Fields");
     }
     try {
-      const res = await AdminAxios.post("/listTypes", { typeList },
-      { headers: {
-        Authorization: `Bearer ${token}`,
-     },}
-    );
+      const res = await AdminAxios.post(
+        "/listTypes",
+        { typeList },
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
       if (res.data.status == true) {
         console.log(res.data);
         setType(res.data.types);
         // console.log(type);
-        // showToastMessage(); success
+        setSucMsg("Done");
         typeRef.current.value = ""; // Clear the input field after form submission
       } else {
         console.log("ooooooo");
@@ -77,7 +80,7 @@ function categoryManage() {
     try {
       setOldData(name);
       setEdit(name);
-      change=true
+      change = true;
     } catch (error) {
       console.log(error);
     }
@@ -86,7 +89,7 @@ function categoryManage() {
   const submitEdit = async (e) => {
     e.preventDefault();
     const editedData = editRef.current.value;
-    setValue('')
+    setValue("");
     if (editedData == "") {
       return generateError("Fill the feilds");
     }
@@ -98,13 +101,13 @@ function categoryManage() {
         `/editType?editedData=${editedData}&oldData=${oldData}`,
         null,
         {
-             headers: {
-                Authorization: `Bearer ${token}`,
-             },
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
         }
       );
       if (res.data.status == true) {
-        // showToastMessage(); success
+        setSucMsg("success");
         SetCount(count + 1);
         setEdit("");
       } else {
@@ -115,14 +118,13 @@ function categoryManage() {
   };
   const deleteType = async (type) => {
     try {
-      const res = await AdminAxios.delete(`/deleteType?id=${type}`,
-      {
-           headers: {
-              Authorization: `Bearer ${token}`,
-           },
+      const res = await AdminAxios.delete(`/deleteType?id=${type}`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
       });
       if (res.data.status == true) {
-        // showToastMessage(); success
+        setSucMsg("Success");
         setdeleted(deleted + res.data.status);
       } else {
         generateError(res.data.message);
@@ -161,92 +163,109 @@ function categoryManage() {
               </div>
             </form>
           </div>
-          {Value?(
-          <>
-            <div className="flex justify-center">
-            <h2 htmlFor="" className="mt-2 pt-2 font-semibold">
-              Edit Types
-            </h2>
-          </div>
-          <div className="flex justify-center pt-3">
-            <form className="flex justify-center w-1/2" onSubmit={submitEdit} action="">
-              <br />
-              <div className="rounded md:w-[80vh] h-11 flex justify-end bg-[#e2e8f0]">
-                <input
-                 ref={editRef}
-                  type="text"
-                  placeholder="Select the type from below"
-                  onChange={(e)=>setEdit(e.target.value)}
-                  value={edit}
-                  className="font-semibold outline-none font-sans h-9 mt-[0.29rem] md:w-[60vh] w-[25vh] sm:w-[50vh] lg:w-[100vh] ml-1 border-none bg-[#e2e8f0]"
-                  name=""
-                  id=""
-                />
-                <button className="border bg-[#6D6C6C] text-white font-semibold rounded md:px-6 md:py-1 sm:ms-5">
-                  Submit
-                </button>
+          {Value ? (
+            <>
+              <div className="flex justify-center">
+                <h2 htmlFor="" className="mt-2 pt-2 font-semibold">
+                  Edit Types
+                </h2>
               </div>
-            </form>
-          </div>
-          </>)
-          :''}
-         
+              <div className="flex justify-center pt-3">
+                <form
+                  className="flex justify-center w-1/2"
+                  onSubmit={submitEdit}
+                  action=""
+                >
+                  <br />
+                  <div className="rounded md:w-[80vh] h-11 flex justify-end bg-[#e2e8f0]">
+                    <input
+                      ref={editRef}
+                      type="text"
+                      placeholder="Select the type from below"
+                      onChange={(e) => setEdit(e.target.value)}
+                      value={edit}
+                      className="font-semibold outline-none font-sans h-9 mt-[0.29rem] md:w-[60vh] w-[25vh] sm:w-[50vh] lg:w-[100vh] ml-1 border-none bg-[#e2e8f0]"
+                      name=""
+                      id=""
+                    />
+                    <button className="border bg-[#6D6C6C] text-white font-semibold rounded md:px-6 md:py-1 sm:ms-5">
+                      Submit
+                    </button>
+                  </div>
+                </form>
+              </div>
+            </>
+          ) : (
+            ""
+          )}
+
           <h1 className="text-center p-3">List Types</h1>
           <div className="flex justify-center ">
             <div className="rounded md:w-[80vh] overflow-auto h-[10rem] md:h-[17rem] flex pt-2 justify-center bg-[#e2e8f0]">
               <div className="flex-col">
-              <div className="flex justify-end" role="search">
-  <div className="relative">
-    <input
-      className="form-control ps-2 rounded-md border border-gray-400 outline-none pr-10 bg-white bg-no-repeat bg-contain"
-      type="search"
-      placeholder="Search"
-      value={SearchInput}
-      onChange={(e) => setSearchInput(e.target.value)}
-      aria-label="Search"
-    />
-    <div className="absolute inset-y-0 right-0 flex items-center pr-2 pointer-events-none">
-      <i className="fas fa-search text-black"></i>
-    </div>
-  </div>
-</div>
+                <div className="flex justify-end" role="search">
+                  <div className="relative">
+                    <input
+                      className="form-control ps-2 rounded-md border border-gray-400 outline-none pr-10 bg-white bg-no-repeat bg-contain"
+                      type="search"
+                      placeholder="Search"
+                      value={SearchInput}
+                      onChange={(e) => setSearchInput(e.target.value)}
+                      aria-label="Search"
+                    />
+                    <div className="absolute inset-y-0 right-0 flex items-center pr-2 pointer-events-none">
+                      <i className="fas fa-search text-black"></i>
+                    </div>
+                  </div>
+                </div>
 
                 {details.length > 0
-                  ? details.filter((type) =>
-                  type.name.toLowerCase().includes(SearchInput.toLowerCase())
-                ).map((type, index) => {
-                      return (
-                        <div key={type._id} className="bg-white flex h-11 w-[60vh]  items-center my-2 rounded-md">
-                          <div className="flex gap-3 w-full justify-between ">
-                            <div className="flex gap-3 ml-2 font-bold">
-                              <div className="text-slate-600">{index + 1}.</div>
-                              <div className="text-slate-600">{type.name}</div>
-                            </div>
-                            <div className="flex gap-4 mr-2">
-                              <div>
-                                <button
-                                  onClick={() => {
-                                    editType(type.name);
-                                    setValue(1)                                  
-                                  }}
-                                >
-                                  <i className="fas fa-edit text-black"></i>
-                                </button>
+                  ? details
+                      .filter((type) =>
+                        type.name
+                          .toLowerCase()
+                          .includes(SearchInput.toLowerCase())
+                      )
+                      .map((type, index) => {
+                        return (
+                          <div
+                            key={type._id}
+                            className="bg-white flex h-11 w-[60vh]  items-center my-2 rounded-md"
+                          >
+                            <div className="flex gap-3 w-full justify-between ">
+                              <div className="flex gap-3 ml-2 font-bold">
+                                <div className="text-slate-600">
+                                  {index + 1}.
+                                </div>
+                                <div className="text-slate-600">
+                                  {type.name}
+                                </div>
                               </div>
-                              <div>
-                                <button
-                                  onClick={() => {
-                                    deleteType(type._id);
-                                  }}
-                                >
-                                  <i className="fa fa-trash text-red-600"></i>
-                                </button>
+                              <div className="flex gap-4 mr-2">
+                                <div>
+                                  <button
+                                    onClick={() => {
+                                      editType(type.name);
+                                      setValue(1);
+                                    }}
+                                  >
+                                    <i className="fas fa-edit text-black"></i>
+                                  </button>
+                                </div>
+                                <div>
+                                  <button
+                                    onClick={() => {
+                                      deleteType(type._id);
+                                    }}
+                                  >
+                                    <i className="fa fa-trash text-red-600"></i>
+                                  </button>
+                                </div>
                               </div>
                             </div>
                           </div>
-                        </div>
-                      );
-                    })
+                        );
+                      })
                   : "empty types"}
               </div>
             </div>

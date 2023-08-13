@@ -41,7 +41,7 @@ function otpLogin() {
       }, auth);
     }
   }
-
+console.log(recaptchaVerifierRef,'recaptc ha');
   const checkPhone = async (phone) => {
     const res = await professionalsAxios.post("/proPhone", { phone });
     return res.data;

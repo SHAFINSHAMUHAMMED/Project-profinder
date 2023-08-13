@@ -7,6 +7,9 @@ import UserRegister from '../pages/User/Register'
 import VerifyMail from '../pages/User/verifyMail'
 import OtpLogin from '../pages/User/otpLogin'
 import Service from '../pages/User/listPro'
+import ProProfile from '../pages/User/proProfile'
+import ConfirmBooking from '../pages/User/bookingConfirm'
+import UserProfile from '../pages/User/userProfile'
 
 function UserRoutes() {
   const IsAuth = useSelector((state)=> state.user)
@@ -19,6 +22,12 @@ function UserRoutes() {
         <Route path='/verifyMail/:id' element={<VerifyMail/>}/>
         <Route path='/loginOtp' element={<OtpLogin/>}/>
         <Route path='/Services' element={<Service/>}/>
+        <Route path='/connect' element={<ProProfile/>}/>
+        <Route path='/confirmBooking' element={<ConfirmBooking/>}/>
+        <Route path='/profile' element={<UserProfile/>}/>
+
+
+
 
         </Routes>
     </div>

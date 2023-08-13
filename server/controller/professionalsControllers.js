@@ -1,6 +1,7 @@
 import bcrypt from "bcrypt";
 import proModel from "../models/professionalSchema.js";
 import categoryModel from "../models/categorySchema.js";
+import locationModel from "../models/locationSchema.js";
 import { generateToken } from "../middleware/auth.js";
 import nodemailer from "nodemailer";
 import env from "dotenv";
@@ -12,6 +13,15 @@ export const RegisterPost = async (req, res) => {
     let email = proDetails.email.toLowerCase();
     const pro = await proModel.findOne({ email: email });
     const proPhone = await proModel.findOne({ phone: proDetails.phone });
+    const location = await locationModel.findOne({ location:proDetails.location.toUpperCase() });
+    let userLocation;
+    if(location){
+      userLocation=location
+    }else{
+      userLocation= await locationModel.create({
+        location:proDetails.location
+      })
+    }
     if (!pro && !proPhone) {
       console.log("get in");
       proDetails.password = await bcrypt.hash(proDetails.password, 10);
@@ -20,7 +30,7 @@ export const RegisterPost = async (req, res) => {
         email: proDetails.email.toLowerCase(),
         phone: proDetails.phone,
         category: proDetails.category,
-        location: proDetails.location,
+        location: userLocation._id,
         charge: {
           partime: proDetails.partTime,
           fulltime: proDetails.fullTime,
@@ -74,6 +84,8 @@ export const RegisterPost = async (req, res) => {
 
 export const sendVerifyMail = async (proname, email, pro_id) => {
   try {
+    const proUrl = process.env.ProUrl;
+
     const transporter = nodemailer.createTransport({
       host: "smtp.gmail.com",
       port: 465,
@@ -88,7 +100,7 @@ export const sendVerifyMail = async (proname, email, pro_id) => {
       from: "codershafinsha@gmail.com",
       to: email,
       subject: "Email verification",
-      html: `<p>Hii ${proname}, please click <a href="http://localhost:5173/professional/VerifyMail/${pro_id}">here</a> to verify your email.</p>`,
+      html: `<p>Hii ${proname}, please click <a href="${proUrl}/VerifyMail/${pro_id}">here</a> to verify your email.</p>`,
     };
 
     const deleteData = async () => {
@@ -247,7 +259,7 @@ export const findByPhone = async (req,res)=>{
     }
 
     }catch(error){
-      console.log(error);
+      res.status(500).json(error)
     }
   
   }

@@ -9,8 +9,12 @@ const userSchema = new mongoose.Schema(
         name: { 
             type: String,
             required: true,
+            uppercase: true,
 
         }, 
+        image: {
+            type: String
+        },
         email: {
             type: String,
             required: true,
@@ -37,6 +41,13 @@ const userSchema = new mongoose.Schema(
             type: Boolean,
             default: false,
         },
+        orders: [
+            {
+              type: mongoose.Schema.Types.ObjectId,
+              ref: "orders",
+            },
+          ],
+
 
     },
 )

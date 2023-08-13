@@ -2,7 +2,7 @@ import React, { useState, useRef } from "react";
 import userAxios from "../../../Axios/userAxios";
 import { useNavigate, Link, useLocation } from "react-router-dom";
 import { useDispatch } from "react-redux";
-import { userLogin, userName } from "../../../Redux/userState";
+import { userLogin, userName,userId } from "../../../Redux/userState";
 import { Toaster, toast } from "react-hot-toast";
 import { GoogleLogin } from "@react-oauth/google";
 import { decodeJwt } from "jose";
@@ -29,9 +29,11 @@ function login() {
       if (result.Status) {
         const token = result.token;
         const user = result.name;
+        const id = result.id
         setTokenCookie(token);
         dispatch(userLogin({ token: token }));
         dispatch(userName({ username: user }));
+        dispatch(userId({id:id}))
         navigate("/");
       } else {
         const message = result.message;
@@ -49,9 +51,11 @@ function login() {
       if (result.Status) {
         const token = result.token;
         const user = result.name;
+        const id = result.id
         setTokenCookie(token);
         dispatch(userLogin({ token: token }));
         dispatch(userName({ username: user }));
+        dispatch(userId({id:id}));
         navigate("/");
       } else {
         const message = result.message;
